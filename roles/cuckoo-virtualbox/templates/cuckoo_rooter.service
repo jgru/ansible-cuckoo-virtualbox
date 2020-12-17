@@ -1,0 +1,10 @@
+[Unit]
+Description=Cuckoo Rooter service wrapper
+After=network.target
+
+[Service]
+ExecStart={{ cuckoo_dir }}/bin/cuckoo rooter --sudo -g {{ cuckoo_user }}
+WorkingDirectory={{ working_dir }}
+
+[Install]
+WantedBy=multi-user.target

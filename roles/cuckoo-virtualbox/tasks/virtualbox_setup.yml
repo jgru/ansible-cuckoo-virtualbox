@@ -1,0 +1,97 @@
+- name: Create resources directory
+  file:
+    path: /home/{{ cuckoo_user }}/resources
+    state: directory
+    owner: "{{ cuckoo_user }}"
+    group: "{{ cuckoo_user }}"
+    mode: 0755
+  become: yes
+
+- name: Copy guest VM
+  copy:
+    src: "{{ cuckoo_appliance }}"
+    dest: "/home/{{ cuckoo_user }}/resources/{{ cuckoo_appliance }}"
+    owner: "{{ cuckoo_user }}"
+    group: "{{ cuckoo_user }}"
+    mode: '0755'
+  become: yes
+
+- name: Get imported VMs
+  shell: vboxmanage list vms
+  register: vbox_list
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+
+- name: Import pre-configured OVA/OVF file
+  command: "vboxmanage import /home/'{{ cuckoo_user }}'/resources/'{{ cuckoo_appliance}}'"
+  when: 'cuckoo_vm_label not in vbox_list.stdout'
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+
+- name: Discard potential saved state, which blocks removal of network interfaces
+  command: "vboxmanage discardstate '{{ cuckoo_vm_label }}'"
+  ignore_errors: true
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+
+- name: Remove vboxnet0
+  command: vboxmanage hostonlyif remove vboxnet0
+  ignore_errors: true
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+
+- name: Create vboxnet0
+  command: vboxmanage hostonlyif create
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+
+- name: Set vboxnet0 for '{{ cuckoo_vm_label }}'
+  command: "vboxmanage modifyvm '{{ cuckoo_vm_label }}' --nic1 hostonly --nictype1 82540EM --hostonlyadapter1 vboxnet0"
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+
+- name: Configure vboxnet0 to be up
+  become: yes
+  command: ifconfig vboxnet0 '{{ cuckoo_guest_net }}{{ cuckoo_result_ip }}' netmask 255.255.255.0 broadcast '{{ cuckoo_guest_net }}{{ guestnet_broadcast }}' up
+
+
+- name: Start VM '{{ cuckoo_vm_label }}'
+  command: "vboxmanage startvm '{{ cuckoo_vm_label }}' --type headless"
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+  become: yes
+  register: boot
+
+- name: Wait for VM get fully booted
+  pause:
+    minutes: 3
+  when: boot 
+
+- name: Take a VM snapshot for {{ cuckoo_vm_label }}
+  command: "vboxmanage snapshot '{{ cuckoo_vm_label }}' take '{{ cuckoo_vm_label }}-snapshot1' --pause"
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+
+- name: Poweroff VM {{ cuckoo_vm_label }}
+  command: "vboxmanage controlvm '{{ cuckoo_vm_label }}' poweroff"
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+  when: boot 
+
+- name: Restore VM snapshot for {{ cuckoo_vm_label }}
+  command: "vboxmanage snapshot '{{ cuckoo_vm_label }}' restorecurrent"
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+
+- name: Copy local AppArmor profile for VirtualBox to /etc/apparmor.d
+  become: yes
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/apparmor.d"
+    mode: 0644
+  with_fileglob:
+    - ../files/usr.lib.virtualbox.VirtualBox
+  
+- name: Apply AppArmor profile for VirtualBox
+  become: yes
+  shell: aa-enforce /etc/apparmor.d/usr.lib.virtualbox.VirtualBox

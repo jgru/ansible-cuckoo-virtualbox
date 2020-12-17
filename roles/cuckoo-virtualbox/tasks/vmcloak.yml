@@ -1,0 +1,52 @@
+---
+- name: Install additional packages for vmcloak
+  apt:
+    pkg:
+     - genisoimage
+  become: yes
+  tags:
+    - packages
+
+- name: Install vmcloak into Cuckoo's virtualenv - {{ cuckoo_dir }}
+  pip:
+    virtualenv: "{{ cuckoo_dir }}"
+    virtualenv_python: python2.7
+    name:
+      - vmcloak
+  become: yes
+
+- name: Copy Windows ISO
+  become: yes
+  copy:
+    src: "{{ iso }}"
+    dest: "{{ resources_dir }}/{{ iso }}"
+    owner: "{{ cuckoo_user }}"
+    group: "{{ cuckoo_user }}"
+    mode: '0644'
+
+- name: Mount Windows ISO
+  become: yes
+  ansible.posix.mount:
+    path: /mnt/win7
+    src: "{{ resources_dir }}/{{ iso }}"
+    fstype: udf
+    opts: loop,ro
+    state: mounted # mount point will be created, if not present
+
+- name: Change ownership of mount point
+  become: yes
+  file:
+    path: /mnt
+    owner: "{{ cuckoo_user }}"
+    group: "{{ cuckoo_user }}"
+    #recurse: true
+
+- name: Copy local config.json with serial for vmcloak
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+  template:
+    src: config.json
+    dest: "/home/{{ cuckoo_user }}/.vmcloak/config.json"
+    owner: "{{ cuckoo_user }}"
+    group: "{{ cuckoo_user }}"
+    mode: 0644

@@ -1,0 +1,70 @@
+---
+# Ensure cuckoo's services are started on system boot
+# See: https://github.com/fyhertz/ansible-role-cuckoo/blob/master/tasks/configure_rooter.yml
+- name: Install Cuckoo's Rooter systemd service
+  template:
+    src: cuckoo_rooter.service
+    dest: /etc/systemd/system/cuckoo_rooter.service
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+
+- name: start cuckoo_rooter
+  become: yes
+  systemd:
+    name: cuckoo_rooter
+    state: restarted
+    enabled: yes
+    masked: no
+
+- name: Create and install Cuckoo's web frontend as systemd service
+  template:
+    src: cuckoo_web.service
+    dest: /etc/systemd/system/cuckoo_web.service
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+
+- name: start cuckoo_web
+  become: yes
+  systemd:
+    name: cuckoo_web
+    state: restarted
+    enabled: yes
+    masked: no
+
+- name: Create and install Cuckoo's REST API as systemd service
+  template:
+    src: cuckoo_web.service
+    dest: /etc/systemd/system/cuckoo_api.service
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+
+- name: start cuckoo_api
+  become: yes
+  systemd:
+    name: cuckoo_api
+    state: restarted
+    enabled: yes
+    masked: no
+
+- name: Create and install Cuckoo sandbox as systemd service
+  template:
+    src: cuckoo.service
+    dest: /etc/systemd/system/cuckoo.service
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+
+- name: start cuckoo
+  become: yes
+  systemd:
+    name: cuckoo
+    state: restarted
+    enabled: yes
+    masked: no

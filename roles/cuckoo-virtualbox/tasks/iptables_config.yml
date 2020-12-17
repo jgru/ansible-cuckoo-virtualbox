@@ -1,0 +1,91 @@
+---
+- name: Install iptables-persistent
+  become: yes
+  apt:
+    name: iptables-persistent
+    state: present
+    update_cache: yes
+
+- name: Enable IPv4 forward peristent
+  become: yes
+  become_method: sudo
+  command: "sysctl -w net.ipv4.ip_forward=1"
+
+- name: Enable IPv4 forward right now
+  become: yes
+  become_method: sudo
+  command: "echo 1 | tee -a /proc/sys/net/ipv4/ip_forward"
+
+- name: Clear existing iptables rules
+  become: yes
+  iptables:
+    chain: "{{ item }}"
+    flush: yes
+  with_items:  [ 'INPUT', 'FORWARD', 'OUTPUT' ]
+
+- name: Clear existing nat rules
+  become: yes
+  iptables:
+    table: nat
+    chain: "{{ item }}"
+    flush: yes
+  with_items: [ 'INPUT', 'OUTPUT', 'PREROUTING', 'POSTROUTING' ]
+
+- name: Protect net range {{ protected_net_1 }} from VM traffic
+  become: yes
+  iptables:
+    chain: "{{ item }}"
+    source: "{{ cuckoo_guest_net_range }}"
+    destination: "{{ protected_net_1 }}"
+    jump: DROP
+    action: insert
+  with_items: [ 'INPUT', 'FORWARD' ]
+
+- name: Protect net range {{ protected_net_2 }} from VM traffic
+  become: yes
+  iptables:
+    chain: "{{ item }}"
+    source: "{{ cuckoo_guest_net_range }}"
+    destination: "{{ protected_net_2 }}"
+    jump: DROP
+    action: insert
+  with_items:  [ 'INPUT', 'FORWARD' ]
+
+- name: forward packets from the VMs to external
+  become: yes
+  iptables:
+    chain: FORWARD
+    source: "{{ cuckoo_guest_net_range }}"
+    jump: ACCEPT
+    action: append
+
+- name: forward packets from the VMs to external
+  become: yes
+  iptables:
+    chain: FORWARD
+    ctstate: ESTABLISHED,RELATED
+    jump: ACCEPT
+    action: append
+
+- name: forward packets from the VMs to external
+  become: yes
+  iptables:
+    chain: POSTROUTING
+    table: nat
+    out_interface: "{{ nic }}"
+    jump: MASQUERADE
+
+# Dump rules
+- name: Save iptables-rules
+  become: yes
+  shell: "iptables-save > /etc/iptables/rules.v4"
+
+# Ensure dumped rules are loaded on system boot
+- name: Configure iptables' systemd-service, which reads stored rules
+  # https://serverfault.com/questions/723185/restoring-iptables-at-boot-rc-local#:~:text=Put%20your%20firewall%20rules%20into,start%20them%20at%20boot%20time.
+  become: yes
+  systemd:
+    name: iptables
+    state: restarted
+    enabled: yes
+    masked: no

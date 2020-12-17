@@ -1,0 +1,24 @@
+---
+- name: Install python2 base packages; Cuckoo still runs under Python2.7!
+  apt:
+    pkg:
+      - python2.7
+      - python-setuptools
+      - python2.7-dev
+      - virtualenv
+      - python-setuptools
+    state: present
+  become: yes
+  tags:
+    - python2
+
+- name: Download pip2
+  get_url:
+    url: https://bootstrap.pypa.io/get-pip.py
+    dest: /tmp/get-pip.py
+  become: yes
+
+- name: Install pip2
+  shell: sudo python2.7 /tmp/get-pip.py
+  become: yes
+

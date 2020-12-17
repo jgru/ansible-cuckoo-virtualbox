@@ -1,0 +1,18 @@
+---
+#- import_tasks: python2.yml
+#- import_tasks: datetime.yml
+#- import_tasks: cuckoo_prequisites.yml
+#- import_tasks: postgres.yml
+#- import_tasks: cuckoo_user.yml
+#- import_tasks: cuckoo.yml
+#- import_tasks: virtualbox.yml
+#- import_tasks: volatility.yml
+#- import_tasks: yara.yml
+
+# Use either virtualbox_setup OR vmcloak to prep your VM(s)
+#- import_tasks: virtualbox_setup.yml
+#- import_tasks: vmcloak.yml
+
+# Setup up iptables to enable internet for VMs
+- import_tasks: iptables_config.yml
+#- import_tasks: cuckoo_service_installation.yml

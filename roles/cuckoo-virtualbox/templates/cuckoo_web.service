@@ -1,0 +1,12 @@
+[Unit]
+Description=Cuckoo web frontend service wrapper
+After=network.target
+
+[Service]
+User={{ cuckoo_user }}
+Group={{ cuckoo_user }}
+ExecStart={{ cuckoo_dir }}/bin/cuckoo web runserver 0.0.0.0:{{ cuckoo_web_port }}
+WorkingDirectory={{ working_dir }}
+
+[Install]
+WantedBy=multi-user.target

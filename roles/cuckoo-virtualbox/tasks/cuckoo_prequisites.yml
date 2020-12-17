@@ -1,0 +1,82 @@
+- name: Install base packages
+  apt:
+    pkg:
+     - apt-transport-https
+     - unattended-upgrades # security updates
+     - apt-listchanges
+     - locales
+     - build-essential
+     - acl
+     - ntp
+     - htop
+     - git
+     - apparmor-utils
+  become: yes
+  tags:
+    - packages
+
+- name: Install general cuckoo prerequisites
+  apt:
+    pkg:
+     - git
+     - libffi-dev 
+     - build-essential 
+     - libtool
+     - flex
+     - autoconf
+     - swig 
+     - autoconf 
+     - libtool 
+     - libjansson-dev 
+     - libmagic-dev 
+     - libssl-dev 
+     - libxml2-dev
+     - libxslt1-dev
+     - libfuzzy-dev
+     - libjansson-dev
+     - libjansson4
+     - zlib1g-dev
+     - libmagic-dev
+     - libpcre3-dbg
+     - libpcre3-dev
+     - libyaml-dev
+     - oinkmaster
+     - libcommon-sense-perl
+     - libjson-perl
+     - libjson-xs-perl 
+     - libtypes-serialiser-perl
+     - libyaml-dev
+     - ssdeep
+  become: yes
+
+- name: Install graphic prerequisistes
+  apt:
+    pkg:
+      - libjpeg-dev
+      - python-pil 
+  become: yes
+- name: Install network specific cuckoo prerequisites
+  apt:
+    pkg:
+     - tcpdump
+     - libcap2-bin
+     - libpcap-dev
+     - libcap-ng-dev
+     - libnet1-dev
+     - net-tools
+     - bridge-utils
+     - ethtool
+     - curl
+     - apparmor-utils
+  become: yes
+
+- name: Install archive specific cuckoo prerequisites
+  apt:
+    pkg:
+     - p7zip-full
+     - unace-nonfree
+     - cabextract
+     - rar
+  become: yes
+
+

@@ -1,0 +1,5 @@
+{
+    "win7": {
+        "serialkey": "{{ iso_serial }}"
+    }
+}

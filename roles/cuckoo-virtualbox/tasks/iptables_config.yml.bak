@@ -1,0 +1,47 @@
+#- name: Add Iptables rule [ 3 / 3 ]
+#  become: yes
+#  command: "iptables -A FORWARD -s 192.168.56.0/24 -d 192.168.56.0/24 -j ACCEPT"
+
+
+
+
+- name: Enable IPv4 forward peristent
+  become: yes
+  become_method: sudo
+  command: "sysctl -w net.ipv4.ip_forward=1"
+
+- name: Enable IPv4 forward right now
+  become: yes
+  become_method: sudo
+  command: "echo 1 | tee -a /proc/sys/net/ipv4/ip_forward"
+
+- name: Clear existing iptables rules
+  become: yes
+  command: "iptables -F"
+
+- name: Clear existing iptables rules in nat tables
+  become: yes
+  command: "iptables -F -t nat"
+
+- name: Add Iptables rule to drop packets to 10.0.0.0/8
+  become: yes
+  command: "iptables -I INPUT -s {{ cuckoo_guest_net_range }} -d {{ protected_net_1 }} -j DROP"
+
+- name: Add Iptables rule to drop packets to 192.168.178.0/24
+  become: yes
+  command: "iptables -I INPUT -s {{ cuckoo_guest_net_range }} -d {{ protected_net_2 }} -j DROP"
+
+- name: Add Iptables rule to forward packets from the VMs to external
+  become: yes
+  command: "iptables -A FORWARD -s {{ cuckoo_guest_net_range }} -j ACCEPT"
+
+- name: Add Iptables rule to accept related incoming traffic
+  become: yes
+  command: "iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT"
+
+- name: Add Iptables rule send packets to specific interface and masquerade
+  become: yes
+  command: "iptables -A POSTROUTING -t nat -o {{ nic }} -j MASQUERADE"
+
+
+#- name: Add Iptables rule [ 3 / 3 ]

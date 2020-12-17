@@ -1,0 +1,35 @@
+---
+- name: Install postgresql package
+  apt:
+    pkg:
+      - postgresql
+      - libpq-dev
+    state: present
+  become: yes
+  tags:
+    - postgres
+
+- name: Install psycopg2 dependency for Ansible PG management capability
+  command: pip2 install psycopg2
+  become: yes
+  become_user: "postgres" # it's import to install as postgres user, otherwise lib won't be available
+  
+- name: Ensure database is created
+  become: yes
+  become_user: "postgres"
+  postgresql_db: name={{ cuckoo_user }}
+
+- name: Ensure user has access to database
+  become: yes
+  become_user: "postgres"
+  postgresql_user: db={{ cuckoo_user }} name={{ cuckoo_user }} password={{ cuckoo_user }} priv=ALL
+
+- name: Ensure user does not have unnecessary privilege
+  become: yes
+  become_user: "postgres"
+  postgresql_user: name={{ cuckoo_user }} role_attr_flags=NOSUPERUSER,NOCREATEDB
+
+- name: Ensure no other user can access the database
+  become: yes
+  become_user: "postgres"
+  postgresql_privs: db={{ cuckoo_user }} role=PUBLIC type=database priv=ALL state=absent

@@ -1,0 +1,76 @@
+---
+- name: Create build directory in {{ build_dir }}
+  become: yes
+  file:
+    path: "{{ build_dir }}"
+    state: directory
+    owner: "{{ cuckoo_user }}"
+    group: "{{ cuckoo_user }}"
+    mode: 0755
+
+- name: Install yara requirements from apt
+  become: yes
+  apt:
+    pkg: 
+      - libpcre3
+      - libpcre3-dev
+      - libtool
+      - automake
+      - autoconf
+      - python-dev
+      - libssl-dev
+      - libjansson-dev
+      - libmagic-dev
+      - build-essential 
+      - pkg-config
+    state: latest
+
+- name: Download and uncompress Yara source
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+  unarchive:
+    src: https://github.com/VirusTotal/yara/archive/v{{ yara_version }}.tar.gz
+    dest: "{{ build_dir }}"
+    remote_src: true
+
+- name: Bootstrap Yara
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+  shell: ./bootstrap.sh
+  args:
+    chdir: "{{ build_dir }}/yara-{{ yara_version }}"
+
+- name: Configure Yara
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+  shell: "./configure --enable-cuckoo --enable-magic"
+  args:
+    chdir: "{{ build_dir }}/yara-{{ yara_version }}"
+
+- name: Compile Yara
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+  shell: make
+  args:
+    chdir: "{{ build_dir }}/yara-{{ yara_version }}"
+
+- name: Install Yara
+  become: yes
+  shell: make install
+  args:
+    chdir: "{{ build_dir }}/yara-{{ yara_version }}"
+
+- name: Download and uncompress Yara's Python bindings
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+  unarchive:
+    src: https://github.com/VirusTotal/yara-python/archive/v{{ yara_version }}.tar.gz
+    dest: "{{ build_dir }}"
+    remote_src: true
+
+- name: Install Yara's python bindings 
+  become: yes
+  become_user: "{{cuckoo_user }}"
+  command: sudo python2.7 setup.py install
+  args:
+    chdir: "{{ build_dir }}/yara-python-{{ yara_version }}/"

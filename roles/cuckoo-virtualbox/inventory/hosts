@@ -1,0 +1,8 @@
+[cuckoo]
+10.0.0.10
+
+[all:vars]
+ansible_connection=ssh
+ansible_user=user01
+ansible_python_interpreter=/usr/bin/python2.7
+

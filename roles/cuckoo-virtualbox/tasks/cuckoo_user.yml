@@ -1,0 +1,46 @@
+---
+- name: Check if "{{ cuckoo_user }}" user exists
+  getent: 
+    key: "{{ cuckoo_user }}"
+    database: passwd 
+    fail_key: false 
+
+- name: Create "{{ cuckoo_user }}" group
+  become: true
+  become_method: sudo
+  group:
+    name: "{{ cuckoo_user }}"
+    state: present
+  when: getent_passwd[cuckoo_user] == none
+
+- name: Create "{{ cuckoo_user }}" user
+  become: true
+  become_method: sudo
+  user:
+    name: "{{ cuckoo_user }}"
+    state: present
+    group: "{{ cuckoo_user }}"
+    groups: sudo,{{ cuckoo_user }}
+    shell: /bin/bash
+    home: "/home/{{ cuckoo_user }}"
+  when: getent_passwd[cuckoo_user] == none
+
+- name: Allow "{{ cuckoo_user }}" group to have passwordless sudo
+  become: true
+  become_method: sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: "^%{{ cuckoo_user }}"
+    line: "%{{ cuckoo_user }} ALL=(ALL) NOPASSWD: ALL"
+    validate: visudo -cf %s
+  when: getent_passwd[cuckoo_user] == none
+
+- name: Ensures /home/{{ cuckoo_user }} dir exists
+  become: yes
+  file:
+    path: "/home/{{ cuckoo_user }}"
+    state: directory
+    owner: "{{ cuckoo_user }}"
+    group: "{{ cuckoo_user }}"
+  when: getent_passwd[cuckoo_user] == none

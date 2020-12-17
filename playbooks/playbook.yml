@@ -1,0 +1,11 @@
+# usage: ansible-playbook -i inventory/hosts playbook.yml --ask-become-pass -v
+---
+- hosts: all
+  gather_facts: false
+  pre_tasks:
+    - name: Install minimal Python for Ansible
+      raw: (test -e /usr/bin/python2.7) || (sudo apt -y update && apt install -y python2.7-minimal)
+      changed_when: False
+  roles:
+    - cuckoo-virtualbox
+

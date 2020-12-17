@@ -1,0 +1,12 @@
+[Unit]
+Description=Cuckoo service wrapper
+After=network.target
+
+[Service]
+User={{ cuckoo_user }}
+Group={{ cuckoo_user }}
+ExecStart={{ cuckoo_dir }}/bin/cuckoo --debug --cwd {{ working_dir }}
+WorkingDirectory={{ working_dir }}
+
+[Install]
+WantedBy=multi-user.target

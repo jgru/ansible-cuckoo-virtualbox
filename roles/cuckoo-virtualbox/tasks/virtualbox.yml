@@ -1,0 +1,55 @@
+---
+- name: Configure the Oracle APT key
+  become: yes
+  apt_key: url={{ item }} state=present
+  with_items:
+    - "https://www.virtualbox.org/download/oracle_vbox.asc"
+    - "https://www.virtualbox.org/download/oracle_vbox_2016.asc"
+
+- name: Configure the VirtualBox APT repositories
+  become: true
+  become_method: sudo
+  apt_repository:
+    repo: "deb http://download.virtualbox.org/virtualbox/debian {{ distribution }} contrib"
+    state: present
+
+- name: Install VirtualBox
+  become: yes
+  apt:
+    pkg: "virtualbox-{{ virtualbox_version }}"
+    state: present
+    update_cache: true
+# - name: Install VirtualBox DKMS - Kernel module support
+#   become: true
+#   become_method: sudo
+#   apt:
+#     pkg: "virtualbox-dkms"
+#     state: present
+#     update_cache: true
+
+- name: Check that the Oracle_VM_VirtualBox_Extension_Pack-{{ virtualbox_ext_pack_ver }}.vbox-extpack exists
+  stat:
+    path: /tmp/Oracle_VM_VirtualBox_Extension_Pack-{{ virtualbox_ext_pack_ver }}.vbox-extpack
+  register: virtualbox_ext_pack_file
+
+- name: Download Virtualbox Extpack
+  become: true
+  become_method: sudo
+  get_url: url=http://download.virtualbox.org/virtualbox/{{ virtualbox_ext_pack_ver.split('-')[0] }}/Oracle_VM_VirtualBox_Extension_Pack-{{ virtualbox_ext_pack_ver }}.vbox-extpack dest=/tmp mode=0644
+  when: virtualbox_ext_pack_file.stat.exists == false
+
+- name: Install Virtualbox Extpack
+  become: yes
+  # Sudo is needed, when running a server edition of Ubuntu and installed XFCE
+  # on top of it, X server did not run as root. So all its child process (including virtualbox)
+  # did not have root privileges (which is required for installing the extension pack).
+  shell: "echo y | sudo vboxmanage extpack install --replace /tmp/Oracle_VM_VirtualBox_Extension_Pack-{{ virtualbox_ext_pack_ver }}.vbox-extpack"
+  args:
+    creates: /usr/lib/virtualbox/ExtensionPacks/Oracle_VM_VirtualBox_Extension_Pack
+
+- name: Add "{{ cuckoo_user }}" user to "vboxusers" group
+  become: yes
+  user:
+    name: "{{ cuckoo_user }}"
+    groups: vboxusers,sudo,{{ cuckoo_user }}
+    append: false
