@@ -1,25 +1,61 @@
 ---
+- name: Install python packages into virtualenv - {{ cuckoo_dir }}
+  pip:
+    virtualenv: "{{ volatility_dir }}"
+    virtualenv_python: python2.7
+    name:
+      - pip
+      - setuptools==44.0.0
+  become: yes
+
+- name: Change owner of {{ volatility_dir }} directory
+  become: yes
+  file:
+    path: "{{ volatility_dir }}"
+    state: directory
+    owner: "{{ cuckoo_user }}"
+    group: "{{ cuckoo_user }}"
+    recurse: true
+
 - name: Download and uncompress Volatility source
-  become: true
-  become_method: sudo
+  become: yes
   become_user: "{{ cuckoo_user }}"
   unarchive:
-    src: https://github.com/volatilityfoundation/volatility/archive/{{ volatility_version }}.tar.gz
+    src: "https://github.com/volatilityfoundation/volatility/archive/{{ volatility_version }}.tar.gz"
     dest: "{{ build_dir }}"
     remote_src: true
 
 - name: Build Volatility
-  become: true
-  become_method: sudo
-  become_user: "{{ cuckoo_user }}"
-  shell: python setup.py build
+  become: yes
+  become_user: "{{ cuckoo_user}}"
+  shell: "{{ cuckoo_dir }}/bin/python2.7 setup.py build" #
   args:
     chdir: "{{ build_dir }}/volatility-{{ volatility_version }}"
 
 - name: Install Volatility
-  become: true
-  become_method: sudo
-  shell: python setup.py install
+  become: yes
+  become_user: "{{ cuckoo_user }}"
+  shell: "{{ volatility_dir }}/bin/python2.7 setup.py install" #
   args:
-    chdir: "{{ build_dir }}/volatility-{{ volatility_version }}" 
-    creates: /bin/vol.py
+    chdir: "{{ build_dir }}/volatility-{{ volatility_version }}"
+
+
+- name: Install Volatility
+  become: yes
+  shell: "{{ volatility_dir }}/bin/python2.7 setup.py install" #
+  args:
+    chdir: "{{ build_dir }}/volatility-{{ volatility_version }}"
+    #creates: /bin/vol.py
+
+
+- name: Install python packages into virtualenv - {{ cuckoo_dir }}; neccessary for vol.py
+  pip:
+    virtualenv: "{{ volatility_dir }}"
+    virtualenv_python: python2.7
+    name:
+      - distorm3
+      - pycrypto
+  become: yes
+#   virtualenv: "{{ cuckoo_dir }}"
+#   virtualenv_python: python2.7
+#    executable: pip2.7

@@ -2,6 +2,7 @@
 distribution: focal
 cuckoo_user: cuckoo
 timezone: UTC
+is_malconfscan: true 
 
 # Virtualization vars
 virtualbox_ext_pack_ver: 6.1.6
@@ -9,23 +10,26 @@ virtualbox_version: 6.1
 
 # Ports
 cuckoo_web_port: 8080
-cuckoo_api_port: 8081
+cuckoo_api_port: 8090
 
 # Virtual environment
 cuckoo_dir: /opt/cuckoo
+volatility_dir: /opt/cuckoo
 working_dir: /home/{{ cuckoo_user }}/.cuckoo
 resources_dir: /home/{{ cuckoo_user }}/resources
 
 # Configurations
-mongodb_ip: 10.0.0.71
+mongodb_ip: 10.0.0.74
 mongodb_port: 27017
 build_dir: /usr/local/src/build
-volatility_version: 2.5
-yara_version: "4.0.2"
+volatility_version: 2.6
+cuckoo_version: 2.0.7 #2.0.6
+yara_version: 4.0.2 # 3.6.3 #
 
 # Guest vars
 # For usage with a prepped appliancecuckoo_vm_label: ie9win7-1
-cuckoo_appliance: ie9win7-1.ova
+cuckoo_appliance: win7-cuckoo1.ova
+cuckoo_vm_label: win7-cuckoo1
 # For usage with vmcloak
 iso: Win7_HomePrem_SP1_German_COEM_x32.iso
 iso_serial: XXXX-XXXX-XXXX-XXXX-XXXX

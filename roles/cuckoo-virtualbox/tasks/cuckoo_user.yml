@@ -1,9 +1,9 @@
 ---
 - name: Check if "{{ cuckoo_user }}" user exists
-  getent: 
+  getent:
     key: "{{ cuckoo_user }}"
-    database: passwd 
-    fail_key: false 
+    database: passwd
+    fail_key: false
 
 - name: Create "{{ cuckoo_user }}" group
   become: true

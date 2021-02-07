@@ -37,7 +37,7 @@
 
 - name: Create and install Cuckoo's REST API as systemd service
   template:
-    src: cuckoo_web.service
+    src: cuckoo_api.service
     dest: /etc/systemd/system/cuckoo_api.service
     owner: root
     group: root
@@ -59,6 +59,15 @@
     owner: root
     group: root
     mode: 0644
+  become: yes
+
+- name: Create and install Cuckoo sandbox as systemd service
+  template:
+    src: netprep.sh
+    dest: "{{ cuckoo_dir }}/bin/netprep.sh"
+    owner: cuckoo
+    group: root
+    mode: 0744
   become: yes
 
 - name: start cuckoo

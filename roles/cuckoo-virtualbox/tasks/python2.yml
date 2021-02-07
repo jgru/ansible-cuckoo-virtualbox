@@ -14,11 +14,12 @@
 
 - name: Download pip2
   get_url:
-    url: https://bootstrap.pypa.io/get-pip.py
+    url: https://bootstrap.pypa.io/2.7/get-pip.py
     dest: /tmp/get-pip.py
   become: yes
 
-- name: Install pip2
-  shell: sudo python2.7 /tmp/get-pip.py
+- name: Install pip
+  command: "sudo python2.7 get-pip.py"
+  args:
+    chdir: /tmp
   become: yes
-

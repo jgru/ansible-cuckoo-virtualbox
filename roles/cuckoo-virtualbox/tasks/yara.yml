@@ -11,7 +11,7 @@
 - name: Install yara requirements from apt
   become: yes
   apt:
-    pkg: 
+    pkg:
       - libpcre3
       - libpcre3-dev
       - libtool
@@ -21,7 +21,7 @@
       - libssl-dev
       - libjansson-dev
       - libmagic-dev
-      - build-essential 
+      - build-essential
       - pkg-config
     state: latest
 
@@ -68,9 +68,9 @@
     dest: "{{ build_dir }}"
     remote_src: true
 
-- name: Install Yara's python bindings 
+- name: Install Yara's python bindings
   become: yes
   become_user: "{{cuckoo_user }}"
-  command: sudo python2.7 setup.py install
+  command: "{{ cuckoo_dir }}/bin/python2.7 setup.py install"
   args:
     chdir: "{{ build_dir }}/yara-python-{{ yara_version }}/"

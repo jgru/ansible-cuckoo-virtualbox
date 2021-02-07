@@ -5,6 +5,7 @@ After=network.target
 [Service]
 User={{ cuckoo_user }}
 Group={{ cuckoo_user }}
+ExecStartPre={{ cuckoo_dir }}/bin/netprep.sh
 ExecStart={{ cuckoo_dir }}/bin/cuckoo --debug --cwd {{ working_dir }}
 WorkingDirectory={{ working_dir }}
 

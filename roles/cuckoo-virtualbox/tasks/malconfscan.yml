@@ -1,0 +1,45 @@
+---
+# See https://github.com/JPCERTCC/MalConfScan/wiki/How-to-Install#install-packages
+- name: Change owner of {{ build_dir }} directory
+  become: yes
+  file:
+    path: "{{ build_dir }}"
+    state: directory
+    owner: "{{ cuckoo_user }}"
+    group: "{{ cuckoo_user }}"
+    recurse: true
+
+- name: Clone MalConfScan repo
+  git:
+    repo: https://github.com/JPCERTCC/MalConfScan.git
+    dest: "{{ build_dir }}/MalConfScan/"
+  become: yes # needed for write permissions on build dir
+  become_user: "{{ cuckoo_user }}"
+
+- name: Install specified python requirements in indicated (virtualenv)
+  pip:
+    requirements: "{{ build_dir }}/MalConfScan/requirements.txt"
+    virtualenv: "{{ volatility_dir }}"
+    virtualenv_python: python2.7
+  become: yes
+
+- name: Copy malconfscan.py
+  ansible.builtin.copy:
+    src: "{{ build_dir }}/MalConfScan/malconfscan.py"
+    dest: "{{ volatility_dir }}/lib/python2.7/site-packages/volatility-{{ volatility_version }}-py2.7.egg/volatility/plugins/malware/"
+    remote_src: yes
+  become: yes
+
+- name: Copy utils folder
+  ansible.builtin.copy:
+    src: "{{ build_dir }}/MalConfScan/utils"
+    dest: "{{ volatility_dir }}/lib/python2.7/site-packages/volatility-{{ volatility_version }}-py2.7.egg/volatility/plugins/malware/"
+    remote_src: yes
+  become: yes
+
+- name: Copy yara folder
+  ansible.builtin.copy:
+    src: "{{ build_dir }}/MalConfScan/yara"
+    dest: "{{ volatility_dir }}/lib/python2.7/site-packages/volatility-{{ volatility_version }}-py2.7.egg/volatility/plugins/malware/"
+    remote_src: yes
+  become: yes
