@@ -82,16 +82,6 @@
   with_fileglob:
     - ../files/cuckoo_conf/*
 
-#- name: Copy local Cuckoo routing.conf-template file to {{ working_dir }}/conf
-#  become: yes
-#  become_user: "{{ cuckoo_user }}"
-#  template:
-#    src: routing.conf
-#    dest: "{{ working_dir }}/conf"
-#    owner: "{{ cuckoo_user }}"
-#    group: "{{ cuckoo_user }}"
-#    mode: 0644
-
 - name: Copy local Cuckoo reporting.conf-template file to {{ working_dir }}conf
   become: yes
   become_user: "{{ cuckoo_user }}"
