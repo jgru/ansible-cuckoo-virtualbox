@@ -6,15 +6,13 @@ Ansible role to deploy a Cuckoo sandbox host based on Ubuntu 20.04, which uses V
 ** Usage
 1. Insert the IP of your target machine to the inventory ~./roles/cuckoo-virtualbox/inventory/hosts~ and make sure, that it is accessible via passwordless SSH.
 
-2. Edit the variables inside ~./roles/cuckoo-virtalbox/defaults/main.yml~ to match your environment.
-Furtheron make sure to place your .ova inside ~roles/cuckoo-virtualbox/files~ and adapt the global variables ~cuckoo_appliance~ and ~cuckoo_vm_label~ (the label used by Cuckoo and ~vboxmanage~) accordingly. It be
+2. Edit the variables inside ~./roles/cuckoo-virtalbox/defaults/main.yml~ to match your environment. Furtheron make sure to place your .ova inside ~roles/cuckoo-virtualbox/files~ and adapt the global variables ~cuckoo_appliance~ and ~cuckoo_vm_label~ (the label used by Cuckoo and ~vboxmanage~) accordingly. It be
 
-3. Use ~ansible-playbook~ to run the setup process
-
-#+begin_src bash
-ansible-playbook -i inventory/hosts playbooks/playbook.yml --ask-become-pass -vvv
-#+end_src
-
-Note, that the necessary MongoDB is not installed with this role, because I think it is more convenient to host it on a separate box. Edit the variables ~mongodb_ip~ and ~mongodb_port~ inside ~./roles/cuckoo-virtalbox/defaults/main.yml~ to let those point to your database.
+3. Use ~ansible-playbook~ to run the setup process 
+    #+begin_src bash
+    ansible-playbook -i inventory/hosts playbooks/playbook.yml --ask-become-pass -vvv
+    #+end_src
 
 4. Make necessary modifications of the config files inside ~/home/{{ cuckoo_user }}/.cuckoo/conf/~ and be happy about the painless setup of your cuckoo sandbox!
+
+:exclamation: Note, that the necessary MongoDB is not installed with this role, because I think it is more convenient to host it on a separate box. Edit the variables    ~mongodb_ip~ and ~mongodb_port~ inside ~./roles/cuckoo-virtalbox/defaults/main.yml~ to let those point to your database.
