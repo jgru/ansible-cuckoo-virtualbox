@@ -15,4 +15,6 @@ Ansible role to deploy a Cuckoo sandbox host based on Ubuntu 20.04, which uses V
 
 4. Make necessary modifications of the config files inside ~/home/{{ cuckoo_user }}/.cuckoo/conf/~ and be happy about the painless setup of your cuckoo sandbox!
 
-:exclamation: Note, that the necessary MongoDB is not installed with this role, because I think it is more convenient to host it on a separate box. Edit the variables    ~mongodb_ip~ and ~mongodb_port~ inside ~./roles/cuckoo-virtalbox/defaults/main.yml~ to let those point to your database.
+*Note*: The necessary MongoDB is not installed with this role, because it seems to be more convenient to host it on a separate box. Edit the variables    ~mongodb_ip~ and ~mongodb_port~ inside ~./roles/cuckoo-virtalbox/defaults/main.yml~ to let those point to your database.
+
+
