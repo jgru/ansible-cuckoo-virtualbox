@@ -10,6 +10,7 @@ Ansible role to deploy a Cuckoo sandbox host based on Ubuntu 20.04, which uses V
 Furtheron make sure to place your .ova inside ~roles/cuckoo-virtualbox/files~ and adapt the global variables ~cuckoo_appliance~ and ~cuckoo_vm_label~ (the label used by Cuckoo and ~vboxmanage~) accordingly. It be
 
 3. Use ~ansible-playbook~ to run the setup process
+
 #+begin_src bash
 ansible-playbook -i inventory/hosts playbooks/playbook.yml --ask-become-pass -vvv
 #+end_src
