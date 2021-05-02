@@ -1,7 +1,7 @@
 * ansible-cuckoo-virtualbox
 Ansible role to deploy a Cuckoo sandbox host based on Ubuntu 20.04, which uses VirtualBox VMs as sandbox guests, from scratch.
 
-[[https://github.com/JPCERTCC/MalConfScan][Malconfscan]] and the corresponding Cuckoo patch [[https://github.com/JPCERTCC/MalConfScan-with-Cuckoo][Malconfscan with Cuckoo]] are incorporated for painless install of fully working sandbox to extract malware configuration data.
+As a valuable addition to the standard Cuckoo install, [[https://github.com/JPCERTCC/MalConfScan][Malconfscan]] and the corresponding Cuckoo patch [[https://github.com/JPCERTCC/MalConfScan-with-Cuckoo][Malconfscan with Cuckoo]] are incorporated for painless install of fully working sandbox to extract malware configuration data.
 
 ** Usage
 1. Insert the IP of your target machine to the inventory ~./roles/cuckoo-virtualbox/inventory/hosts~ and make sure, that it is accessible via passwordless SSH.
